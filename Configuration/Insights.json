@@ -1,0 +1,83 @@
+[
+  {
+    "ResourceProvider": "Microsoft.Web",
+    "ResourceType": "sites",
+    "JsonPath": "environment.environmentVariables.PROCESSOR_ARCHITECTURE",
+    "DataSource": "AST",
+    "Title": "Your web app may not need 64-bit",
+    "Category": "Cost Analysis",
+    "Reference": "https://www.hanselman.com/blog/PennyPinchingInTheCloudYourWebAppDoesntNeed64bit.aspx",
+    "Info": "If your application never exceeds 300-600 megs of memory and there's no reason for them to be 64-bit.",
+
+    "Conditions": [
+      {
+         "OldValue": "x86",
+         "NewValue": "AMD64"
+      }
+    ]
+  },
+  {
+    "ResourceProvider": "Microsoft.Web",
+    "ResourceType": "sites",
+    "JsonPath": "environment.environmentVariables.WEBSITE_SCM_ALWAYS_ON_ENABLED",
+    "DataSource": "AST",
+    "Title": "AlwaysOn disabled, End users may experience longer response time while site resumes.",
+    "Category": "Performance Impact",
+    "Reference": "https://docs.microsoft.com/en-us/azure/app-service/faq-availability-performance-application-issues#how-do-i-decrease-the-response-time-for-the-first-request-after-idle-time",
+    "Info": "If the site is inactive for an extended period of time, the process associated with it is shut down to conserve resources. Subsequent requests following a long idle time, may take longer to respond as the process has to be re-started and the site re-initialized.",
+    "Conditions": [
+      {
+        "OldValue": "1",
+        "NewValue": "0"
+      }
+    ]
+  },
+  {
+    "ResourceProvider": "Microsoft.Network",
+    "ResourceType": "networkSecurityGroups",
+    "JsonPath": "properties.securityRules[*].properties.access",
+    "DataSource": "ARG",
+    "Description": "The suggestion is validating whether existing security rule .access value was modified. We first check whether whether Change OldValue equals to null or 'Allow' and Change NewValue equals to 'Deny'. Secondly we check whether the parent object of .access property in after change snapshot has a JsonPathFilter .destinationPortRanges matching any of the ports specified in the ExpectedValue",
+    "Title": "Firewall network security rule blocking access to critical ports",
+    "Category": "Availability",
+    "Reference": "https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/troubleshoot-rdp-nsg-problem",
+    "Info": "Firewall network security rule blocking access to critical ports, it might affect the VMs accessing internet.",
+    "Conditions": [
+      {
+        "OldValue": [ "Allow", null ],
+        "NewValue": ["Deny"],
+        "Comparison": "StringContainsAny"
+      },
+      {
+        "NewValue": [ "3389", "22", "443", "80", "8080", "*" ],
+        "Source": "Snapshot",
+        "Comparison": "StringContainsAny",
+        "Path": "properties.securityRules[*].destinationPortRanges"
+      }
+    ]
+  },
+  {
+    "ResourceProvider": "Microsoft.Network",
+    "ResourceType": "networkSecurityGroups",
+    "JsonPath": "properties.securityRules[*]",
+    "DataSource": "ARG",
+    "Description": "The suggestion is validating a case where new security rule was added. So first check whether OldValue of change is null and NewValue of change has a JToken that contains a JsonPathFilter .properties.access equals to 'Deny'. Secondly we check whether Change NewValue has JsonPathFilter .properties.destinationPortRanges equals to any of the ports specified in ExpectedValue ",
+    "Title": "Firewall network security rule blocking access to critical ports",
+    "Category": "Availability",
+    "Reference": "https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/troubleshoot-rdp-nsg-problem",
+    "Info": "Firewall network security rule blocking access to critical ports, it might affect the VMs accessing internet.",
+    "Conditions": [
+      {
+        "OldValue": [ null ],
+        "NewValue": ["Deny"],
+        "Comparison": "StringContainsAny",
+        "Path": "properties.access"
+      },
+      {
+        "NewValue": [ "3389", "22", "443", "80", "8080", "*" ],
+        "Comparison": "StringContainsAny",
+        "Path": "properties.destinationPortRange"
+      }
+    ]
+  }
+]

@@ -35,9 +35,10 @@
 ### Conditions: 
 - Each insight can have multiple conditions. 
 - All conditions should be evaluated as a 'match' in order to attach an insight to a change.
+
 **Required properties** :
-- JToken NewValue - the value to apply against after change value (either the NewValue in change object or snapshot)
-- JToken OldValue - the value to apply against before change value (either the OldValue in change object or snapshot)
+- JToken **NewValue** - the value to apply against after change value (either the NewValue in change object or snapshot)
+- JToken **OldValue** - the value to apply against before change value (either the OldValue in change object or snapshot)
 
 **Optional properties** : 
 
@@ -58,6 +59,35 @@ Snapshot - The condition check expression should be applied to a snapshot from w
 ```
  **Path** : 
  The JsonPath is applied to evaluated Json content (Change [Old or New Value] or Snapshot). The discovered JTokens are compared with Value field. The comparison is done by using specified ComparisonType operator. (**default** value is null, which means no json path is applied and the full value of Change NewValue or OldValue is used.)
+ 
+ ###Examples
+
+ {
+    "ResourceProvider": "Microsoft.Network",
+    "ResourceType": "networkSecurityGroups",
+    "JsonPath": "properties.securityRules[*].properties.access",
+    "DataSource": "ARG",
+    "Description": "The suggestion is validating whether existing security rule .access value was modified. We first check whether whether Change OldValue equals to null or 'Allow' and Change NewValue equals to 'Deny'. Secondly we check whether the parent object of .access property in after change snapshot has a JsonPathFilter .destinationPortRanges matching any of the ports specified in the ExpectedValue",
+    "Title": "Firewall network security rule blocking access to critical ports",
+    "Category": "Availability",
+    "Reference": "https://docs.microsoft.com/en-us/azure/virtual-machines/troubleshooting/troubleshoot-rdp-nsg-problem",
+    "Info": "Firewall network security rule blocking access to critical ports, it might affect the VMs accessing internet.",
+    "Conditions": [
+      {
+        "OldValue": [ "Allow", null ],
+        "NewValue": ["Deny"],
+        "Comparison": "StringContainsAny"
+      },
+      {
+        "NewValue": [ "3389", "22", "443", "80", "8080", "*" ],
+        "Source": "Snapshot",
+        "Comparison": "StringContainsAny",
+        "Path": "properties.securityRules[*].destinationPortRanges"
+      }
+    ]
+  }
+  
+  The insight above has 2 matching conditions - it would first match a first condition and check whether change OldValue contains either "Allow" or null, and NewValue has value "Deny". Secondary it would check whether the content of properties.securityRules[*].destinationPortRanges json path in the "after change" snapshot json object would contain any of the values specified in the NewValue field.
 
 **Insights Editing and Testing Tools**:
 https://aca-insights.azurewebsites.net

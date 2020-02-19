@@ -60,8 +60,9 @@ Snapshot - The condition check expression should be applied to a snapshot from w
  **Path** : 
  The JsonPath is applied to evaluated Json content (Change [Old or New Value] or Snapshot). The discovered JTokens are compared with Value field. The comparison is done by using specified ComparisonType operator. (**default** value is null, which means no json path is applied and the full value of Change NewValue or OldValue is used.)
  
- ###Examples
-
+ ### Examples
+ 
+```sh
  {
     "ResourceProvider": "Microsoft.Network",
     "ResourceType": "networkSecurityGroups",
@@ -86,8 +87,9 @@ Snapshot - The condition check expression should be applied to a snapshot from w
       }
     ]
   }
-  
-  The insight above has 2 matching conditions - it would first match a first condition and check whether change OldValue contains either "Allow" or null, and NewValue has value "Deny". Secondary it would check whether the content of properties.securityRules[*].destinationPortRanges json path in the "after change" snapshot json object would contain any of the values specified in the NewValue field.
+```
+
+The insight above has 2 matching conditions - it would first match a first condition and check whether change OldValue contains either "Allow" or null, and NewValue has value "Deny". Secondary it would check whether the content of properties.securityRules[*].destinationPortRanges json path in the "after change" snapshot json object would contain any of the values specified in the NewValue field.
 
 **Insights Editing and Testing Tools**:
 https://aca-insights.azurewebsites.net

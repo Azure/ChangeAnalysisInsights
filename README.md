@@ -1,4 +1,4 @@
-### Insight example: 
+### Basic insight: 
 
 ```sh
 [
@@ -91,7 +91,8 @@ Snapshot - The condition check expression should be applied to a snapshot from w
 
 The insight above has 2 matching conditions - it would first match a first condition and check whether change OldValue contains either "Allow" or null, and NewValue has value "Deny". Secondary it would check whether the content of properties.securityRules[*].destinationPortRanges json path in the "after change" snapshot json object would contain any of the values specified in the NewValue field.
 
-**Insights Editing and Testing Tools**:
+**Insights Editing and Testing Tool**:
+
 https://aca-insights.azurewebsites.net
 
 
